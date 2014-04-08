@@ -11,7 +11,7 @@ public class Client extends JFrame{
 	private JList Users;
 	private JTextArea chat;
 	private JTextField message;
-	private Socket echoSocket = null;
+	private Socket socket = null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 	private DefaultListModel usersModel;
@@ -24,6 +24,7 @@ public class Client extends JFrame{
 	private static Client c = new Client();
 	
 	private String name;
+	
 	public Client(){
 		setLayout(new BorderLayout());
 		usersModel = new DefaultListModel();
@@ -92,10 +93,10 @@ public class Client extends JFrame{
 					recipiants.add((String)selectedUsers[i]);
 					System.out.println("adding "+ selectedUsers[i]);
 				}
-				if(selectedUsers.length == 0)
+				if(Users.getSelectedIndex() == -1)
 				{
 					for(int i=0; i<usersModel.size(); i++)
-					{	
+					{
 						recipiants.add((String)usersModel.getElementAt(i));
 					}
 				}
@@ -107,6 +108,8 @@ public class Client extends JFrame{
 					// TODO Auto-generated catch block
 					ex.printStackTrace();
 				}
+				message.setText("");
+				Users.clearSelection();
 			}
 		}
 
@@ -129,9 +132,9 @@ public class Client extends JFrame{
 						null,
 						"brian");
 		try{
-			echoSocket = new Socket(ipAddress,25565);
-			out = new ObjectOutputStream(echoSocket.getOutputStream());
-			in  = new ObjectInputStream(echoSocket.getInputStream());
+			socket = new Socket(ipAddress,25565);
+			out = new ObjectOutputStream(socket.getOutputStream());
+			in  = new ObjectInputStream(socket.getInputStream());
 			ArrayList<String> recipiants = new ArrayList<String>();
 			recipiants.add("Server");
 			Evenlope e = new Evenlope(name, "Initial Connection.", recipiants);
@@ -178,16 +181,12 @@ public class Client extends JFrame{
 
 		}
 	}
-	public static void main(String[] args) {
-		c.connect();
-		c.listen();	
-	}
+	
 	private class ClientThread implements Runnable {
 		@Override
 		public void run() {
 			Evenlope e = null;
 			try {
-
 				while((e=(Evenlope)in.readObject()) != null)
 				{
 					if(e.sender().equals("Server") && e.message().equals("Join."))
@@ -202,15 +201,12 @@ public class Client extends JFrame{
 						usersModel.removeElement(e.sender());
 					}
 					chat.setText(chat.getText() + e.sender() + ": "+ e.message() +"\n");
-					Thread.sleep(1000);
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} catch (ClassNotFoundException ex) {
 				ex.printStackTrace();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}		
+			}	
 		}
 
 	}

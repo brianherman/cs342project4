@@ -4,13 +4,35 @@ import java.util.ArrayList;
 import java.util.Vector;
 import java.io.*;
 
-public class Server implements ServerThreadCallback{
-	private static Vector<ServerThread> threads = new Vector<ServerThread>();
+import javax.swing.*;
 
-	public static void main(String[] args) {
+import java.awt.*;
+
+public class Server extends JFrame implements ServerThreadIterface{
+	private static Vector<ServerThread> threads = new Vector<ServerThread>();
+	private JList log;
+	private DefaultListModel logModel;
+	
+	public Server(){
+		logModel = new DefaultListModel();
+		log = new JList(logModel);
+		log.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		log.setLayoutOrientation(JList.VERTICAL);
+		log.setVisibleRowCount(-1);
+
+		add(log);
+		setSize(800,600);
+		setVisible(true);
+		
 		ServerSocket serverSocket = null;
 		try{
 			serverSocket = new ServerSocket(25565);
+			log ("Server started open on Port: " +
+					serverSocket.getLocalPort());
+			InetAddress addr = InetAddress.getLocalHost();
+			log("Local Host Name: " + addr.getHostName());
+			log("Local Host Address: " + addr.getHostAddress());
+			log("Listening...");
 			try{
 				while(true){
 					try{
@@ -36,7 +58,9 @@ public class Server implements ServerThreadCallback{
 				System.exit(-1);
 			}
 		}
+
 	}
+	
 	public ArrayList<String> getUsers()
 	{
 		ArrayList<String> users = new ArrayList<String>();
@@ -59,6 +83,7 @@ public class Server implements ServerThreadCallback{
 	@Override
 	public void remove(String user)
 	{
+		log("User "+user+" Left.");
 		for(int i=0; i<threads.size(); i++){
 			if(threads.get(i).name().equals(user))
 			{
@@ -66,4 +91,9 @@ public class Server implements ServerThreadCallback{
 			}
 		}
 	}
+	public void log(String l)
+	{
+		logModel.addElement(l);
+	}
+	
 }
