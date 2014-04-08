@@ -20,8 +20,6 @@ public class Client extends JFrame{
 	private JMenuItem connect;
 	private JMenuItem quit;
 	private JMenuItem leave;
-
-	private static Client c = new Client();
 	
 	private String name;
 	
@@ -72,15 +70,15 @@ public class Client extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			if(connect == e.getSource())
 			{
-				c.connect();
+				connect();
 			}
 			if(leave == e.getSource())
 			{
-				c.leave();
+				leave();
 			}
 			if(quit == e.getSource()){
-				c.leave();
-				c.close();
+				leave();
+				close();
 				System.exit(0);
 			}
 			if(message == e.getSource())
@@ -200,13 +198,14 @@ public class Client extends JFrame{
 						System.out.println(e.sender() + "left.");
 						usersModel.removeElement(e.sender());
 					}
+					
 					chat.setText(chat.getText() + e.sender() + ": "+ e.message() +"\n");
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} catch (ClassNotFoundException ex) {
 				ex.printStackTrace();
-			}	
+			}
 		}
 
 	}

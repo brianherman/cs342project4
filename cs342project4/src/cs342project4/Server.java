@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Server extends JFrame implements ServerThreadIterface{
-	private static Vector<ServerThread> threads = new Vector<ServerThread>();
+	private static ArrayList<ServerThread> threads = new ArrayList<ServerThread>();
 	private JList log;
 	private DefaultListModel logModel;
 	
@@ -36,7 +36,7 @@ public class Server extends JFrame implements ServerThreadIterface{
 			try{
 				while(true){
 					try{
-						ServerThread st = new ServerThread(serverSocket.accept(),new Server());
+						ServerThread st = new ServerThread(serverSocket.accept(),this);
 						new Thread(st).start();
 						threads.add(st);
 					}catch(SocketTimeoutException ste){
@@ -64,8 +64,10 @@ public class Server extends JFrame implements ServerThreadIterface{
 	public ArrayList<String> getUsers()
 	{
 		ArrayList<String> users = new ArrayList<String>();
+		
 		for(ServerThread st : threads)
 			users.add(st.name());
+		
 		return users;
 	}
 	@Override
@@ -75,8 +77,9 @@ public class Server extends JFrame implements ServerThreadIterface{
 		{
 			for(String r : m.recipiants())
 			{
-				if(s.name().equals(r))
+				if(s.name().equals(r)){
 					s.send(m);
+				}
 			}
 		}
 	}

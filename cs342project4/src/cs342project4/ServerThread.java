@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 public class ServerThread implements Runnable {
 	private Socket socket = null;
-	private ObjectOutputStream out;
-	private ObjectInputStream in;
+	private ObjectOutputStream out = null;
+	private ObjectInputStream in = null;
 	private ServerThreadIterface callback = null;
 	private String name = null;
 	public ServerThread(Socket s, ServerThreadIterface stc)
@@ -52,13 +52,17 @@ public class ServerThread implements Runnable {
 		}
 
 	}
+	
 	public String name(){
 		return name;
 	}
+	
 	public void send(Evenlope m) 
 	{
 		try {
+			callback.log(m.sender() +" : " + m.message());
 			out.writeObject(m);
+			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

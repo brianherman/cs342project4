@@ -14,6 +14,8 @@ public class Switcher {
 			s.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		}else{
 			Client c = new Client();
+			c.connect();
+			c.listen();
 			c.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		}
 	}
