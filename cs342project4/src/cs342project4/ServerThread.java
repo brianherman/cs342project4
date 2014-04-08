@@ -25,7 +25,6 @@ public class ServerThread implements Runnable {
 			in = new ObjectInputStream(socket.getInputStream());
 
 			while(true){
-				socket.setSoTimeout(10000);
 				Evenlope m = null;
 				m = (Evenlope)in.readObject();
 				if(m == null){
@@ -34,18 +33,14 @@ public class ServerThread implements Runnable {
 				if(m.sender() != null && m.message().equals("Initial Connection."))
 				{	
 					name = m.sender();
+					callback.send(new Evenlope("Server","Join.",callback.getUsers()));
 				}
-				else if(m.sender() != null && m.message().equals("Quit."))
+				else if(m.sender() != null && m.message().equals("Leave."))
 				{
-					ArrayList<String> leave = new ArrayList<String>();
-					leave.add(name);
-					callback.send(new Evenlope("Server","Leave.",leave));
+					callback.send(new Evenlope(name,"Leave.",callback.getUsers()));
+					close();
 					return;
-				}
-				
-				callback.send(new Evenlope("Server","Join.",callback.getUsers()));
-				
-					
+				}	
 				callback.send(m);
 			}
 
@@ -70,6 +65,7 @@ public class ServerThread implements Runnable {
 	}
 	public void close(){
 		try{
+			callback.remove(name);
 			out.close();
 			in.close();
 			socket.close();

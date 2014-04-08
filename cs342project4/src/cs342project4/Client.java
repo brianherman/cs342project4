@@ -19,7 +19,10 @@ public class Client extends JFrame{
 	private JMenu file;
 	private JMenuItem connect;
 	private JMenuItem quit;
+	private JMenuItem leave;
+
 	private static Client c = new Client();
+	
 	private String name;
 	public Client(){
 		setLayout(new BorderLayout());
@@ -41,12 +44,16 @@ public class Client extends JFrame{
 		menuBar = new JMenuBar();
 		file = new JMenu("File");
 		connect = new JMenuItem("Connect");
+		leave = new JMenuItem("Leave");
 		quit = new JMenuItem("Quit");
+		leave.addActionListener(CAL);
 		connect.addActionListener(CAL);
 		quit.addActionListener(CAL);
 		
 		file.add(connect);
+		file.add(leave);
 		file.add(quit);
+
 		menuBar.add(file);
 		
 		setJMenuBar(menuBar);
@@ -64,7 +71,11 @@ public class Client extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			if(connect == e.getSource())
 			{
-				connect();
+				c.connect();
+			}
+			if(leave == e.getSource())
+			{
+				c.leave();
 			}
 			if(quit == e.getSource()){
 				c.leave();
@@ -80,6 +91,13 @@ public class Client extends JFrame{
 				{	
 					recipiants.add((String)selectedUsers[i]);
 					System.out.println("adding "+ selectedUsers[i]);
+				}
+				if(selectedUsers.length == 0)
+				{
+					for(int i=0; i<usersModel.size(); i++)
+					{	
+						recipiants.add((String)usersModel.getElementAt(i));
+					}
 				}
 				Evenlope ev = new Evenlope(name,message.getText(),recipiants);
 				try {
@@ -116,7 +134,7 @@ public class Client extends JFrame{
 			in  = new ObjectInputStream(echoSocket.getInputStream());
 			ArrayList<String> recipiants = new ArrayList<String>();
 			recipiants.add("Server");
-			Evenlope e = new Evenlope(name,"Initial Connection.", recipiants);
+			Evenlope e = new Evenlope(name, "Initial Connection.", recipiants);
 			out.writeObject(e);
 			out.flush();
 			e = (Evenlope)in.readObject();
@@ -124,7 +142,7 @@ public class Client extends JFrame{
 				usersModel.addElement(s);
 
 		}catch(IOException e){
-
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -133,9 +151,8 @@ public class Client extends JFrame{
 	public void leave(){
 		try {
 			ArrayList<String> recipiants = new ArrayList<String>();
-			recipiants.add("Server");
-
-			Evenlope end = new Evenlope("brian","Quit.", recipiants);
+			recipiants.add(name);
+			Evenlope end = new Evenlope(name,"Leave.", recipiants);
 			if(out != null)
 			{
 				out.writeObject(end);
@@ -146,6 +163,7 @@ public class Client extends JFrame{
 			e.printStackTrace();
 		}
 	}
+	
 	public void listen(){
 		new Thread(new ClientThread()).start();
 	}
@@ -178,9 +196,10 @@ public class Client extends JFrame{
 						for(String s : e.recipiants())
 							usersModel.addElement(s);
 					}
-					if(e.sender().equals("Server") && e.message().equals("Leave."))
+					if(e.message().equals("Leave."))
 					{
-						usersModel.removeElement(e.recipiants().get(0));
+						System.out.println(e.sender() + "left.");
+						usersModel.removeElement(e.sender());
 					}
 					chat.setText(chat.getText() + e.sender() + ": "+ e.message() +"\n");
 					Thread.sleep(1000);
@@ -188,10 +207,8 @@ public class Client extends JFrame{
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} catch (ClassNotFoundException ex) {
-				// TODO Auto-generated catch block
 				ex.printStackTrace();
 			} catch (InterruptedException ex) {
-				// TODO Auto-generated catch block
 				ex.printStackTrace();
 			}		
 		}

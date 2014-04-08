@@ -1,10 +1,11 @@
 package cs342project4;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Vector;
 import java.io.*;
 
 public class Server implements ServerThreadCallback{
-	private static ArrayList<ServerThread> threads = new ArrayList<ServerThread>();
+	private static Vector<ServerThread> threads = new Vector<ServerThread>();
 
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
@@ -12,7 +13,6 @@ public class Server implements ServerThreadCallback{
 			serverSocket = new ServerSocket(25565);
 			try{
 				while(true){
-					serverSocket.setSoTimeout(10000);
 					try{
 						ServerThread st = new ServerThread(serverSocket.accept(),new Server());
 						new Thread(st).start();
@@ -53,6 +53,16 @@ public class Server implements ServerThreadCallback{
 			{
 				if(s.name().equals(r))
 					s.send(m);
+			}
+		}
+	}
+	@Override
+	public void remove(String user)
+	{
+		for(int i=0; i<threads.size(); i++){
+			if(threads.get(i).name().equals(user))
+			{
+				threads.remove(i);
 			}
 		}
 	}
