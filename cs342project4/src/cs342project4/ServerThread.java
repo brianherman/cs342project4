@@ -10,9 +10,12 @@ public class ServerThread implements Runnable {
 	private Socket socket = null;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
-	public ServerThread(Socket s)
+	private ServerThreadCallback callback = null;
+	private String name = null;
+	public ServerThread(Socket s, ServerThreadCallback stc)
 	{
 		socket = s;
+		callback = stc;
 	}
 	@Override
 	public void run() {
@@ -20,26 +23,41 @@ public class ServerThread implements Runnable {
 		try {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in = new ObjectInputStream(socket.getInputStream());
+
 			while(true){
 				socket.setSoTimeout(10000);
 				Evenlope m = null;
 				m = (Evenlope)in.readObject();
-//				for(ServerThread st : serverThreads)
-//					st.send(m);
 				if(m == null){
 					break;
 				}
-				System.out.println(m);
+				if(m.sender() != null && m.message().equals("Initial Connection."))
+				{	
+					name = m.sender();
+				}
+				else if(m.sender() != null && m.message().equals("Quit."))
+				{
+					ArrayList<String> leave = new ArrayList<String>();
+					leave.add(name);
+					callback.send(new Evenlope("Server","Leave.",leave));
+					return;
+				}
+				
+				callback.send(new Evenlope("Server","Join.",callback.getUsers()));
+				
+					
+				callback.send(m);
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+	public String name(){
+		return name;
 	}
 	public void send(Evenlope m) 
 	{
