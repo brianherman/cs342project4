@@ -76,10 +76,10 @@ public class Server extends JFrame implements ServerThreadIterface{
 	}
 	/**
 	 * Sends a message to every recipiant in the envelope.
-	 * @see cs342project4.ServerThreadIterface#send(cs342project4.Evenlope)
+	 * @see cs342project4.ServerThreadIterface#send(cs342project4.Envelope)
 	 */
 	@Override
-	public void send(Evenlope m) {
+	public void send(Envelope m) {
 		for(ServerThread s: threads)
 		{
 			for(String r : m.recipiants())

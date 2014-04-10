@@ -3,7 +3,7 @@ package cs342project4;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Evenlope implements Serializable{
+public class Envelope implements Serializable{
 	private String message;
 	private String sender;
 	private ArrayList<String> Recipiants = new ArrayList<String>();
@@ -13,7 +13,7 @@ public class Evenlope implements Serializable{
 	 * @param m, message
 	 * @param r, recipiants.
 	 */
-	public Evenlope(String s, String m, ArrayList<String> r)
+	public Envelope(String s, String m, ArrayList<String> r)
 	{
 		sender = s;
 		message = m;

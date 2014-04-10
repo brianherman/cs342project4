@@ -30,9 +30,9 @@ public class ServerThread implements Runnable {
 			in = new ObjectInputStream(socket.getInputStream());
 
 			while(true){
-				Evenlope m = null;
+				Envelope m = null;
 				//read in a evenlope.
-				m = (Evenlope)in.readObject();
+				m = (Envelope)in.readObject();
 				if(m == null){
 					break;
 				}
@@ -43,11 +43,11 @@ public class ServerThread implements Runnable {
 				{	
 					name = m.sender();
 					
-					callback.send(new Evenlope("Server","Join.",callback.getUsers()));
+					callback.send(new Envelope("Server","Join.",callback.getUsers()));
 				}
 				else if(m.sender() != null && m.message().equals("Leave."))
 				{
-					callback.send(new Evenlope(name,"Leave.",callback.getUsers()));
+					callback.send(new Envelope(name,"Leave.",callback.getUsers()));
 					close();
 					return;
 				}
@@ -72,7 +72,7 @@ public class ServerThread implements Runnable {
 	 * Allows the server to send an envelope to this client.
 	 * @param m, the message to be sent.
 	 */
-	public void send(Evenlope m) 
+	public void send(Envelope m) 
 	{
 		try {
 			callback.log(m.sender() +" : " + m.message());

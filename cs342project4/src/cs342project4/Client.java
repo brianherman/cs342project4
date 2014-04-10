@@ -111,7 +111,7 @@ public class Client extends JFrame{
 					}
 				}
 				//Send the envelope.
-				Evenlope ev = new Evenlope(name,message.getText(),recipiants);
+				Envelope ev = new Envelope(name,message.getText(),recipiants);
 				try {
 					out.writeObject(ev);
 					out.flush();
@@ -155,11 +155,11 @@ public class Client extends JFrame{
 			//Send inital connection envelope.
 			ArrayList<String> recipiants = new ArrayList<String>();
 			recipiants.add("Server");
-			Evenlope e = new Evenlope(name, "Initial Connection.", recipiants);
+			Envelope e = new Envelope(name, "Initial Connection.", recipiants);
 			out.writeObject(e);
 			out.flush();
 			//Retrieve the people connected.
-			e = (Evenlope)in.readObject();
+			e = (Envelope)in.readObject();
 			for(String s : e.recipiants())
 				usersModel.addElement(s);
 
@@ -177,7 +177,7 @@ public class Client extends JFrame{
 		try {
 			ArrayList<String> recipiants = new ArrayList<String>();
 			recipiants.add(name);
-			Evenlope end = new Evenlope(name,"Leave.", recipiants);
+			Envelope end = new Envelope(name,"Leave.", recipiants);
 			if(out != null)
 			{
 				out.writeObject(end);
@@ -216,12 +216,12 @@ public class Client extends JFrame{
 	private class ClientThread implements Runnable {
 		@Override
 		public void run() {
-			Evenlope e = null;
+			Envelope e = null;
 			try {
 				/*
 				 * Loop to check for incoming messages.
 				 */
-				while((e=(Evenlope)in.readObject()) != null)
+				while((e=(Envelope)in.readObject()) != null)
 				{
 					//Special server message that adds to the user list.
 					if(e.sender().equals("Server") && e.message().equals("Join."))
