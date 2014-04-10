@@ -1,18 +1,17 @@
 package cs342project4;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Vector;
 import java.io.*;
 
 import javax.swing.*;
-
-import java.awt.*;
 
 public class Server extends JFrame implements ServerThreadIterface{
 	private static ArrayList<ServerThread> threads = new ArrayList<ServerThread>();
 	private JList log;
 	private DefaultListModel logModel;
-	
+	/**
+	 * GUI for the server.
+	 */
 	public Server(){
 		logModel = new DefaultListModel();
 		log = new JList(logModel);
@@ -34,8 +33,10 @@ public class Server extends JFrame implements ServerThreadIterface{
 			log("Local Host Address: " + addr.getHostAddress());
 			log("Listening...");
 			try{
+				//Listening loop.
 				while(true){
 					try{
+						//Create a new thread and start it on each accept.
 						ServerThread st = new ServerThread(serverSocket.accept(),this);
 						new Thread(st).start();
 						threads.add(st);
@@ -60,7 +61,10 @@ public class Server extends JFrame implements ServerThreadIterface{
 		}
 
 	}
-	
+	/** 
+	 * Returns a list of users retrieved from the thread Arraylist.
+	 * @see cs342project4.ServerThreadIterface#getUsers()
+	 */
 	public ArrayList<String> getUsers()
 	{
 		ArrayList<String> users = new ArrayList<String>();
@@ -70,9 +74,12 @@ public class Server extends JFrame implements ServerThreadIterface{
 		
 		return users;
 	}
+	/**
+	 * Sends a message to every recipiant in the envelope.
+	 * @see cs342project4.ServerThreadIterface#send(cs342project4.Evenlope)
+	 */
 	@Override
 	public void send(Evenlope m) {
-		System.out.println(m);
 		for(ServerThread s: threads)
 		{
 			for(String r : m.recipiants())
@@ -83,6 +90,9 @@ public class Server extends JFrame implements ServerThreadIterface{
 			}
 		}
 	}
+	/**
+	 * Removes a user from the threads arraylist.
+	 */
 	@Override
 	public void remove(String user)
 	{
@@ -94,6 +104,9 @@ public class Server extends JFrame implements ServerThreadIterface{
 			}
 		}
 	}
+	/**
+	 * Logs a message.
+	 */
 	public void log(String l)
 	{
 		logModel.addElement(l);

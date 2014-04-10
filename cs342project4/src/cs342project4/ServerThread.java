@@ -5,13 +5,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-
+/**
+ * Handles a request from a client/
+ * @author brianherman
+ *
+ */
 public class ServerThread implements Runnable {
 	private Socket socket = null;
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 	private ServerThreadIterface callback = null;
 	private String name = null;
+	
 	public ServerThread(Socket s, ServerThreadIterface stc)
 	{
 		socket = s;
@@ -26,10 +31,14 @@ public class ServerThread implements Runnable {
 
 			while(true){
 				Evenlope m = null;
+				//read in a evenlope.
 				m = (Evenlope)in.readObject();
 				if(m == null){
 					break;
 				}
+				/*
+				 * Special commands.
+				 */
 				if(m.sender() != null && m.message().equals("Initial Connection."))
 				{	
 					name = m.sender();
@@ -41,7 +50,10 @@ public class ServerThread implements Runnable {
 					callback.send(new Evenlope(name,"Leave.",callback.getUsers()));
 					close();
 					return;
-				}	
+				}
+				/**
+				 * If it isn't a special command send it to the other clients.
+				 */
 				callback.send(m);
 			}
 
@@ -56,7 +68,10 @@ public class ServerThread implements Runnable {
 	public String name(){
 		return name;
 	}
-	
+	/**
+	 * Allows the server to send an envelope to this client.
+	 * @param m, the message to be sent.
+	 */
 	public void send(Evenlope m) 
 	{
 		try {
@@ -67,6 +82,9 @@ public class ServerThread implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Allows the server to close this connection.
+	 */
 	public void close(){
 		try{
 			out.close();

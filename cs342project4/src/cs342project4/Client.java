@@ -7,7 +7,9 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.swing.*;
+
 public class Client extends JFrame{
+
 	private JList Users;
 	private JTextArea chat;
 	private JTextField message;
@@ -65,6 +67,11 @@ public class Client extends JFrame{
 
 		setVisible(true);
 	}
+	/**
+	 * Listens for events made by the user.
+	 * @author brianherman
+	 *
+	 */
 	private class ClientActionListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -81,16 +88,21 @@ public class Client extends JFrame{
 				close();
 				System.exit(0);
 			}
+			/*
+			 * If the user pressed enter in the message text box.
+			 */
 			if(message == e.getSource())
 			{
+				//Retrieve the selected users from the users JList.
 				Object selectedUsers[] = Users.getSelectedValues();
 				ArrayList<String> recipiants = new ArrayList<String>();
-
+				//Add it to the recipiants.
 				for(int i=0; i<selectedUsers.length; i++)
 				{	
 					recipiants.add((String)selectedUsers[i]);
 					System.out.println("adding "+ selectedUsers[i]);
 				}
+				//If no users are selected send to everyone.
 				if(Users.getSelectedIndex() == -1)
 				{
 					for(int i=0; i<usersModel.size(); i++)
@@ -98,6 +110,7 @@ public class Client extends JFrame{
 						recipiants.add((String)usersModel.getElementAt(i));
 					}
 				}
+				//Send the envelope.
 				Evenlope ev = new Evenlope(name,message.getText(),recipiants);
 				try {
 					out.writeObject(ev);
@@ -112,7 +125,11 @@ public class Client extends JFrame{
 		}
 
 	}
+	/**
+	 * Connects to the server.
+	 */
 	public void connect(){
+		//Get the server's ip address.
 		String ipAddress = (String)JOptionPane.showInputDialog(
 				null,
 				"Enter the server's ip address:\n",
@@ -121,6 +138,7 @@ public class Client extends JFrame{
 						null,
 						null,
 						"127.0.0.1");
+		//Get the name of the user.
 		name = (String)JOptionPane.showInputDialog(
 				null,
 				"Enter the username you wish to use:\n",
@@ -130,14 +148,17 @@ public class Client extends JFrame{
 						null,
 						"brian");
 		try{
+			//Open the socket and get the input/output streams.
 			socket = new Socket(ipAddress,25565);
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in  = new ObjectInputStream(socket.getInputStream());
+			//Send inital connection envelope.
 			ArrayList<String> recipiants = new ArrayList<String>();
 			recipiants.add("Server");
 			Evenlope e = new Evenlope(name, "Initial Connection.", recipiants);
 			out.writeObject(e);
 			out.flush();
+			//Retrieve the people connected.
 			e = (Evenlope)in.readObject();
 			for(String s : e.recipiants())
 				usersModel.addElement(s);
@@ -149,6 +170,9 @@ public class Client extends JFrame{
 		}
 
 	}
+	/**
+	 * Sends a leave message to the server.
+	 */
 	public void leave(){
 		try {
 			ArrayList<String> recipiants = new ArrayList<String>();
@@ -164,10 +188,15 @@ public class Client extends JFrame{
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * Starts listening for the connection.
+	 */
 	public void listen(){
 		new Thread(new ClientThread()).start();
 	}
+	/**
+	 * Closes the connection.
+	 */
 	public void close(){
 		try{
 			if(out != null || in != null)
@@ -176,29 +205,38 @@ public class Client extends JFrame{
 				in.close();
 			}
 		}catch(IOException e){
-
+			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * This thread listens for incoming messages.
+	 * @author brianherman
+	 *
+	 */
 	private class ClientThread implements Runnable {
 		@Override
 		public void run() {
 			Evenlope e = null;
 			try {
+				/*
+				 * Loop to check for incoming messages.
+				 */
 				while((e=(Evenlope)in.readObject()) != null)
 				{
+					//Special server message that adds to the user list.
 					if(e.sender().equals("Server") && e.message().equals("Join."))
 					{
 						usersModel.removeAllElements();
 						for(String s : e.recipiants())
 							usersModel.addElement(s);
 					}
+					//Special server message that removes from the user list.
 					if(e.message().equals("Leave."))
 					{
 						System.out.println(e.sender() + "left.");
 						usersModel.removeElement(e.sender());
 					}
-					
+					//Print out the message.
 					chat.setText(chat.getText() + e.sender() + ": "+ e.message() +"\n");
 				}
 			} catch (IOException ex) {

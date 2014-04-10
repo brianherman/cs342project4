@@ -4,6 +4,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class Switcher {
+	/*
+	 * Switches between server and client.
+	 */
 	public static void main(String[] args) {
 		Object[] options = { "Server", "Client" };
 		int n = JOptionPane.showOptionDialog(null, "Do you want to launch a server or client", "Selection",
