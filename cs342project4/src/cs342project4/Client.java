@@ -37,7 +37,10 @@ public class Client extends JFrame{
 		listScroller.setPreferredSize(new Dimension(80, 80));
 		
 		chat = new JTextArea();
+		JScrollPane textScroller = new JScrollPane(chat);
+		
 		chat.setEditable(false);
+		
 		message = new JTextField();
 		ClientActionListener CAL = new ClientActionListener();
 		message.addActionListener(CAL);
@@ -59,12 +62,11 @@ public class Client extends JFrame{
 		
 		setJMenuBar(menuBar);
 		
-		add(chat, BorderLayout.CENTER);
+		add(textScroller, BorderLayout.CENTER);
 		add(listScroller,BorderLayout.EAST);
 		add(message, BorderLayout.SOUTH);
 
 		setSize(640,480);
-
 		setVisible(true);
 	}
 	/**
